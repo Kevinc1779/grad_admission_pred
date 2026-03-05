@@ -1,12 +1,10 @@
-# Graduate Admissions Prediction Using Regression
+# Graduate Admissions Prediction Using Regression (R)
 
-This project analyzes factors influencing graduate school admission probability using statistical modeling in R. The analysis explores relationships between academic metrics and admission outcomes, then builds regression models to predict admission chances.
+This project analyzes factors influencing graduate school admission probability using regression modeling in R. The goal is to understand which academic metrics most strongly influence admission chances and build a statistical model to estimate admission probability.
 
 ## Dataset
 
-The dataset contains information about graduate school applicants, including academic scores and recommendation metrics.
-
-Variables included:
+The dataset contains **400 graduate school applicants** with the following variables:
 
 - GRE score
 - TOEFL score
@@ -16,38 +14,42 @@ Variables included:
 - Undergraduate GPA (CGPA)
 - Chance of admission (response variable)
 
-The dataset contains **400 applicant records**.
+The dataset was analyzed using exploratory data analysis and regression modeling.
 
-## Objectives
+## Project Workflow
 
-The goals of this analysis were:
+The analysis followed these steps:
 
-- Explore relationships between academic variables and admission probability
-- Identify the most important predictors of admission chances
-- Build regression models to estimate admission probability
-- Evaluate model performance using statistical metrics
-
-## Methods
-
-The following statistical techniques were used:
-
-- Exploratory Data Analysis (EDA)
-- Correlation analysis
-- Simple linear regression
-- Multiple linear regression
-- Model selection using statistical significance
-- Confidence and prediction interval estimation
+1. Data loading and preprocessing
+2. Exploratory Data Analysis (EDA)
+3. Summary statistics for key variables
+4. Distribution visualization using histograms
+5. Scatter plot analysis of predictors vs admission chance
+6. Correlation analysis
+7. Simple linear regression for each predictor
+8. Multiple linear regression model construction
+9. Model reduction based on statistical significance
+10. Generation of confidence intervals and prediction intervals
 
 ## Model Development
 
-Initial models evaluated each variable individually using simple linear regression.
+Initial regression models were built for each independent variable individually.
 
-Key findings:
+Correlation analysis showed that the strongest relationships with admission chance were:
 
-- **CGPA showed the strongest relationship with admission chance**
-- **GRE and TOEFL also had strong predictive power**
+- **CGPA (0.873)**
+- **GRE (0.803)**
+- **TOEFL (0.792)**
 
-Final reduced model included:
+A full multiple regression model was constructed using all predictors:
+
+GRE + TOEFL + Urate + SOP + LOR + CGPA
+
+Statistical testing indicated that **University Rating and SOP were not significant predictors**, so a reduced model was constructed.
+
+### Final Regression Model
+
+The final model includes:
 
 - GRE
 - TOEFL
@@ -56,12 +58,24 @@ Final reduced model included:
 
 ## Results
 
-The final regression model achieved:
+The reduced regression model achieved:
 
-- **R² ≈ 0.80**
-- All selected predictors were statistically significant (p < 0.05)
+- **R² ≈ 0.798**
+- **Adjusted R² ≈ 0.796**
 
-This indicates the model explains approximately **80% of the variation in admission probability**.
+This indicates the model explains approximately **80% of the variability in admission probability**.
+
+Among all predictors:
+
+- **CGPA was the strongest individual predictor**
+- GRE and TOEFL also showed strong positive relationships with admission chance.
+
+The model was then used to generate:
+
+- **95% confidence intervals**
+- **95% prediction intervals**
+
+for predicted admission probabilities.
 
 
 ## Tools Used
@@ -69,20 +83,11 @@ This indicates the model explains approximately **80% of the variation in admiss
 - R
 - RMarkdown
 - Linear Regression
+- Correlation Analysis
 - Statistical Modeling
-- Data Visualization
 
 ## Key Insights
 
-- CGPA is the strongest predictor of graduate admission probability
-- GRE and TOEFL scores also significantly influence admission chances
-- A reduced regression model can maintain strong predictive power while simplifying interpretation
-
-## Future Improvements
-
-Possible improvements include:
-
-- Testing nonlinear models
-- Applying regularized regression methods (Ridge/Lasso)
-- Incorporating additional applicant features
-- Cross-validation for stronger model validation
+- Undergraduate GPA (CGPA) is the strongest predictor of graduate admission probability.
+- GRE and TOEFL scores significantly improve prediction accuracy.
+- A reduced regression model can maintain predictive performance while simplifying interpretation.

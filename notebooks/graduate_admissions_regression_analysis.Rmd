@@ -1,0 +1,238 @@
+---
+title: "stats3 project"
+author: "Kevin Chen"
+date: "2025-09-12"
+output:
+  word_document: default
+  pdf_document: default
+---
+1
+Here I loaded in my dataset.
+```{r}
+mydata <- read.csv("Grad_Admission.csv")[, -1]
+```
+2
+Printed the first 10 entries.
+```{r}
+head(mydata, 10)
+```
+3 
+Printing a table of the min/1st quartile/median/mean/3rd quartile/max of GRE, Urate, and GPA.
+
+```{r}
+vars <- mydata[, c("GRE", "Urate", "CGPA")]
+summary_table <- data.frame(
+  Min = apply(vars, 2, min),
+  Q1 = apply(vars, 2, quantile, 0.25),
+  Median = apply(vars, 2, median),
+  Mean = apply(vars, 2, mean),
+  Q3 = apply(vars, 2, quantile, 0.75),
+  Max = apply(vars, 2, max)
+)
+summary_table
+```
+
+4 
+Here's a histogram for Chance, CGPA, GRE, and TOEFL
+
+```{r}
+hist(mydata$Chance, main="Histogram of Chance", xlab="Chance", col="blue", border="black")
+hist(mydata$CGPA, main="Histogram of CGPA", xlab="CGPA", col="green", border="black")
+hist(mydata$GRE, main="Histogram of GRE", xlab="GRE", col="red", border="black")
+hist(mydata$TOEFL, main="Histogram of TOEFL", xlab="TOEFL", col="yellow", border="black")
+
+```
+The distribution for chance is left-skewed toward higher values, so this is not normally distributed. The rest of the distributions are more normal. The students in the dataset seems like they are already stronger candidates with higher stats (higher achieving scores/gpa), so this may have caused the chance distribution to be left-skewed.
+
+5 
+Scatter plots
+```{r}
+# GRE vs Chance
+plot(mydata$GRE, mydata$Chance, main="Chance vs GRE",
+     xlab="GRE", ylab="Chance", col="blue", pch=16)
+
+# TOEFL vs Chance
+plot(mydata$TOEFL, mydata$Chance, main="Chance vs TOEFL",
+     xlab="TOEFL", ylab="Chance", col="green", pch=16)
+
+# University Rating vs Chance
+plot(mydata$Urate, mydata$Chance, main="Chance vs University Rating",
+     xlab="University Rating", ylab="Chance", col="red", pch=16)
+
+# SOP vs Chance
+plot(mydata$SOP, mydata$Chance, main="Chance vs SOP",
+     xlab="SOP", ylab="Chance", col="purple", pch=16)
+
+# LOR vs Chance
+plot(mydata$LOR, mydata$Chance, main="Chance vs LOR",
+     xlab="LOR", ylab="Chance", col="orange", pch=16)
+
+# CGPA vs Chance
+plot(mydata$CGPA, mydata$Chance, main="Chance vs CGPA",
+     xlab="CGPA", ylab="Chance", col="brown", pch=16)
+
+```
+6 
+Initially from looking at the scatterplots generated, there seems to be a relationship with every variable, especially GRE, TOEFL, and CGPA. Those 3 seems linear enough to be included in a regression model.
+
+7 
+The relationship between the independent variables and the response variable should be linear, so this assumption of linearity is reasonable. Since each record represents a different student, it is reasonable to infer that observations are independent. We cannot confirm the validity of Homoscedasticity yet without fitting the model first, but the scatter plots do not show any extreme variability changes, so this assumption is likely acceptable. We also cannot check the normality of the residuals yet, but since chance is is fairly continuous and smooth, we expect it to hold. The check for no multicollinearity also cannot be verified yet but the 3 highly correlated variables measures different academic aspects, so high multicollinearity not expected.
+
+8 
+The 3 best independent variables seems to be GRE, TOEFL, and CGPA
+
+\[
+Chance = \beta_0 + \beta_1(GRE) + \beta_2(TOEFL) + \beta_3(CGPA) + \varepsilon
+\]
+
+9 
+```{r}
+cor(mydata$Chance, mydata[, c("GRE", "TOEFL", "Urate", "SOP", "LOR", "CGPA")])
+
+```
+From these correlation coefficients, it is confirmed that the GRE, TOEFL, and CGPA has the highest correlation with the chance response variable. But they all seem to have some positive correlation
+
+10
+For each independent variable, we test:
+
+\[
+H_0: \rho = 0 \quad \text{(no linear relationship)}
+\]
+\[
+H_a: \rho \neq 0 \quad \text{(a linear relationship exists)}
+\]
+
+```{r}
+# Test correlations between Chance and each independent variable
+cor.test(mydata$GRE, mydata$Chance)
+cor.test(mydata$TOEFL, mydata$Chance)
+cor.test(mydata$Urate, mydata$Chance)
+cor.test(mydata$SOP, mydata$Chance)
+cor.test(mydata$LOR, mydata$Chance)
+cor.test(mydata$CGPA, mydata$Chance)
+```
+11
+```{r}
+# GRE
+model_GRE <- lm(Chance ~ GRE, data = mydata)
+summary(model_GRE)
+
+# TOEFL
+model_TOEFL <- lm(Chance ~ TOEFL, data = mydata)
+summary(model_TOEFL)
+
+# University Rating
+model_Urate <- lm(Chance ~ Urate, data = mydata)
+summary(model_Urate)
+
+# SOP
+model_SOP <- lm(Chance ~ SOP, data = mydata)
+summary(model_SOP)
+
+# LOR
+model_LOR <- lm(Chance ~ LOR, data = mydata)
+summary(model_LOR)
+
+# CGPA
+model_CGPA <- lm(Chance ~ CGPA, data = mydata)
+summary(model_CGPA)
+```
+
+All of the p-values are significantly less than 0.05 so each variable significantly predicts chance.
+
+12
+CGPA and GRE had the highest R-square value
+
+```{r}
+model_CGPA <- lm(Chance ~ CGPA, data = mydata)
+model_GRE <- lm(Chance ~ GRE, data = mydata)
+
+# Display ANOVA tables
+anova(model_CGPA)
+anova(model_GRE)
+
+# For reference, view R-squared values
+summary(model_CGPA)$r.squared
+summary(model_GRE)$r.squared
+
+```
+
+From the ANOVA tables, both GRE and CGPA have significant effects on Chance of Admission.
+
+However, CGPA produces a higher F-statistic and larger R-square, indicating it explains more of the variation in admission chances than GRE.
+
+Therefore, CGPA is the best single predictor among all independent variables.
+
+13
+```{r}
+full_model <- lm(Chance ~ GRE + TOEFL + Urate + SOP + LOR + CGPA, data = mydata)
+
+# Show model summary
+summary(full_model)
+
+```
+The Urate and the SOP are not significant at 0.05
+
+14
+```{r}
+reduced_model <- lm(Chance ~ GRE + TOEFL + LOR + CGPA, data = mydata)
+
+# View summary and ANOVA comparison
+summary(reduced_model)
+anova(reduced_model)
+anova(full_model, reduced_model)
+
+```
+
+Observations: Now all variables are significant, the r-square remained about the same 80%. Now the model is simpler and efficient.
+
+15
+```{r}
+# Use the reduced model from Step 14
+reduced_model <- lm(Chance ~ GRE + TOEFL + LOR + CGPA, data = mydata)
+
+# Create predictions with both confidence and prediction intervals
+predictions <- predict(
+  reduced_model,
+  newdata = mydata,
+  interval = "confidence",
+  level = 0.95
+)
+
+predictions_pred <- predict(
+  reduced_model,
+  newdata = mydata,
+  interval = "prediction",
+  level = 0.95
+)
+
+# Combine both results into one table for clarity
+results <- cbind(mydata, 
+                 fit = predictions[, "fit"], 
+                 conf_low = predictions[, "lwr"], 
+                 conf_high = predictions[, "upr"],
+                 pred_low = predictions_pred[, "lwr"],
+                 pred_high = predictions_pred[, "upr"])
+
+# Print first 10 rows
+head(results, 10)
+
+```
+
+16
+\[
+\text{Chance} = -146.25 + 0.2311(\text{GRE}) + 0.2929(\text{TOEFL}) + 2.3960(\text{LOR}) + 30.7403(\text{CGPA})
+\]
+
+The intercept does not have a practical meaning but it is where the regression line starts from the y intercept. Each slope means for each 1 point of the variable, the chance of admission increases by a certain amount of points on the slope for each variable.
+
+17
+This project demonstrates how descriptive statistics and regression analysis provide a structured and evidence-based approach to understanding complex datasets.
+Descriptive measures offer initial insights, while regression modeling verifies those insights quantitatively and enables prediction.
+I would recommend future analyses should combine both methods, beginning with exploratory data summaries and progressing to validated regression models, to ensure results are both interpretable and reasonable.
+
+```{r}
+write.csv(predictions, "confidence_intervals.csv", row.names = FALSE)
+write.csv(predictions_pred, "prediction_intervals.csv", row.names = FALSE)
+```
+
